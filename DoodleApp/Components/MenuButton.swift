@@ -9,7 +9,7 @@ import SwiftUI
 
 
 extension MenuButton {
-    init (_ title: String, _ image: String, _ action: @escaping () -> Void, role: ButtonRole? = nil) {
+    init (_ title: String, _ image: String?, _ action: @escaping () -> Void, role: ButtonRole? = nil) {
         self.title = title
         self.image = image
         self.action = action
@@ -19,7 +19,7 @@ extension MenuButton {
 
 struct MenuButton: View {
     var title: String
-    var image: String
+    var image: String?
     var action: () -> Void
     var role: ButtonRole? = nil
     
@@ -30,7 +30,9 @@ struct MenuButton: View {
             HStack {
                 Text(title)
                 Spacer()
-                Image(systemName: image)
+                if let image {
+                    Image(systemName: image)
+                }
             }
         })
 

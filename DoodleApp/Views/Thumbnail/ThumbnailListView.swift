@@ -12,13 +12,13 @@ import SwiftData
 
 struct ThumbnailListView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \DrawingModel.lastModified, order: .reverse, animation: .smooth) var drawingModels: [DrawingModel]
+    @Query(sort: \DoodleModel.lastModified, order: .reverse, animation: .smooth) var drawingModels: [DoodleModel]
 
     @State private var searchText: String = ""
-    @State private var destinationModel: DrawingModel? = nil
+    @State private var destinationModel: DoodleModel? = nil
     
     @State private var isSelecting: Bool = false
-    @State private var selectedModels: Set<DrawingModel> = Set()
+    @State private var selectedModels: Set<DoodleModel> = Set()
 
     var body: some View {
         GeometryReader { proxy in
@@ -42,7 +42,7 @@ struct ThumbnailListView: View {
                                 destinationModel = drawingModel
                             }
                         }, label: {
-                            ThumbnailCard(drawingModel: drawingModel, selected: isSelecting ? selectedModels.contains(drawingModel) : nil)
+                            ThumbnailCard(doodleModel: drawingModel, selected: isSelecting ? selectedModels.contains(drawingModel) : nil)
                                 .frame(width: width, height: width)
                         })
                     }
@@ -50,16 +50,16 @@ struct ThumbnailListView: View {
                 .buttonStyle(.plain)
                 .searchable(text: $searchText, placement: .toolbar)
             }
-            .navigationTitle("All Drawings")
+            .navigationTitle("All Doodles")
             .navigationDestination(item: $destinationModel, destination: { drawingModel in
-                DrawingView(drawingModel: drawingModel)
+                BoardView(doodleModel: drawingModel)
             })
             .toolbar(content: {
                 if !isSelecting {
                     ToolbarItem(placement: .topBarTrailing, content: {
                         HStack {
                             Button(action: {
-                                let new = DrawingModel()
+                                let new = DoodleModel()
                                 modelContext.insert(new)
                                 destinationModel = new
                             }, label: {
@@ -132,7 +132,7 @@ struct ThumbnailListView: View {
                 if filteredDrawings.isEmpty && !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     ContentUnavailableView("No Results for \"\(searchText)\"", systemImage: "magnifyingglass")
                 } else if drawingModels.isEmpty {
-                    ContentUnavailableView("No Drawings", systemImage: "rectangle.fill.on.rectangle.fill")
+                    ContentUnavailableView("No Doodles", systemImage: "rectangle.fill.on.rectangle.fill")
                 }
             })
         }
@@ -145,6 +145,6 @@ struct ThumbnailListView: View {
     NavigationStack {
         
         ThumbnailListView()
-            .modelContainer(for: [DrawingModel.self], inMemory: true)
+            .modelContainer(for: [DoodleModel.self], inMemory: true)
     }
 }

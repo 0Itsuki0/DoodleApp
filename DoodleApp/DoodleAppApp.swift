@@ -11,8 +11,12 @@ import SwiftUI
 struct DoodleAppApp: App {
     var body: some Scene {
         WindowGroup {
+
             ContentView()
-                .modelContainer(for: [DrawingModel.self])
+                .modelContainer(for: [DoodleModel.self])
+//                .onAppear {
+//                    print("URL.applicationSupportDirectory: \(URL.applicationSupportDirectory.path(percentEncoded: false))")
+//                }
         }
     }
 }

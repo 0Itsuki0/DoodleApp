@@ -12,7 +12,7 @@ import PencilKit
 struct ThumbnailCard: View {
     @Environment(\.modelContext) private var modelContext
 
-    let drawingModel: DrawingModel
+    let doodleModel: DoodleModel
 
     var selected: Bool?
     
@@ -20,13 +20,15 @@ struct ThumbnailCard: View {
     @State private var showRenameAlert: Bool = false
 
     var body: some View {
-        let image = Image(uiImage: drawingModel.drawing.image(from: drawingModel.drawing.bounds, scale: 1.0))
-        let name: String = drawingModel.name
-        let lastModified: Date = drawingModel.lastModified
+//        let image = Image(uiImage: drawingModel.drawing.image(from: drawingModel.drawing.bounds, scale: 1.0))
+        // todo
+        let image = Image(systemName: "heart")
+        let name: String = doodleModel.name
+        let lastModified: Date = doodleModel.lastModified
 
         VStack(spacing: 0) {
             ZStack {
-                if drawingModel.drawing.strokes.isEmpty {
+                if doodleModel.drawings.isEmpty {
                     Text("No doodles yet!")
                         .font(.headline)
                         .foregroundStyle(.secondary)
@@ -40,7 +42,7 @@ struct ThumbnailCard: View {
                 }
             }
             .overlay(alignment: .bottomLeading, content: {
-                if drawingModel.isFavorite {
+                if doodleModel.isFavorite {
                     Image(systemName: "heart.fill")
                         .resizable()
                         .scaledToFit()
@@ -88,41 +90,25 @@ struct ThumbnailCard: View {
                 .shadow(color: .black.opacity(0.2), radius: 2, x: 2, y: 2)
 
         )
-        .alert("Rename Drawing", isPresented: $showRenameAlert) {
-            TextField("", text: $nameEntry)
-
-            Button(action: {
-                showRenameAlert = false
-            }, label: {
-                Text("Cancel")
-            })
-            Button(action: {
-                drawingModel.name = nameEntry.isEmpty ? DrawingModel.defaultName: nameEntry
-                showRenameAlert = false
-            }, label: {
-                Text("OK")
-            })
-        } message: {
-            Text("Enter a new name for this drawing.")
-        }
+        .renameAlert(doodleModel: self.doodleModel, showRenameAlert: $showRenameAlert)
         .contextMenu(menuItems: {
             MenuButton("Rename", "pencil", {
-                nameEntry = drawingModel.name
+                nameEntry = doodleModel.name
                 showRenameAlert = true
             })
 
-            MenuButton(drawingModel.isFavorite ? "Unfavorite" :"Favorite", drawingModel.isFavorite ? "heart.slash" : "heart", {
-                drawingModel.isFavorite.toggle()
+            MenuButton(doodleModel.isFavorite ? "Unfavorite" :"Favorite", doodleModel.isFavorite ? "heart.slash" : "heart", {
+                doodleModel.isFavorite.toggle()
             })
             
             MenuButton("Duplicate", "plus.square.on.square", {
-                modelContext.insert(drawingModel.duplicate)
+                modelContext.insert(doodleModel.duplicate)
             })
             
             ShareLink(item: image, preview: SharePreview(name, image: image))
 
             MenuButton("Delete", "trash", {
-                modelContext.delete(drawingModel)
+                modelContext.delete(doodleModel)
             }, role: .destructive)
         })
 
@@ -130,8 +116,7 @@ struct ThumbnailCard: View {
 
 }
 #Preview {
-
-    ThumbnailCard(drawingModel: DrawingModel.testModel, selected: true)
+    ThumbnailCard(doodleModel: DoodleModel.testModel, selected: true)
         .frame(width: 200, height: 200)
-        .modelContainer(for: [DrawingModel.self], inMemory: true)
+        .modelContainer(for: [DoodleModel.self], inMemory: true)
 }
