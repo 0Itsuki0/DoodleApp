@@ -7,10 +7,19 @@
 
 import SwiftUI
 
-extension Array where Element: Hashable {
-    func difference(from other: [Element]) -> [Element] {
-        let thisSet = Set(self)
-        let otherSet = Set(other)
-        return Array(thisSet.symmetricDifference(otherSet))
+extension Array where Element: Comparable, Element: SignedNumeric {
+    func closestIndex(to element: Element) -> Int {
+        let sorted = self.sorted()
+
+        let overIndex = sorted.firstIndex(where: { $0 >= element }) ?? self.count - 1
+        let underIndex = sorted.lastIndex(where: { $0 <= element }) ?? 0
+
+        
+        let diffOver = self[overIndex] - element
+        let diffUnder = self[underIndex] - element
+
+        return (diffOver < diffUnder) ? overIndex : underIndex
+        
     }
+
 }

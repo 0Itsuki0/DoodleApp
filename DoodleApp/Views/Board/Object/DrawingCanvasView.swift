@@ -40,8 +40,8 @@ struct DrawingCanvasView: UIViewRepresentable {
         canvasView.contentOffset = boardViewModel.doodleModel.previousOffset
         
         /// for zooming
-        canvasView.minimumZoomScale = Constants.minZoom
-        canvasView.maximumZoomScale = Constants.maxZoom
+        canvasView.minimumZoomScale = Constants.minScale
+        canvasView.maximumZoomScale = Constants.maxScale
         canvasView.zoomScale = boardViewModel.doodleModel.previousZoomScale
         
         canvasView.isUserInteractionEnabled = self.isDrawingEnabled
@@ -56,25 +56,15 @@ struct DrawingCanvasView: UIViewRepresentable {
     func updateUIView(_ canvasView: PKCanvasView, context: Context) {
         canvasView.drawingPolicy = boardViewModel.drawingPolicy
         canvasView.isUserInteractionEnabled = self.isDrawingEnabled
-
-        let zoomScale = self.boardViewModel.doodleModel.previousZoomScale
         
         if self.boardViewModel.doodleModel.previousOffset != canvasView.contentOffset {
             canvasView.contentOffset = self.boardViewModel.doodleModel.previousOffset
         }
-        if zoomScale != canvasView.zoomScale {
-            canvasView.zoomScale = zoomScale
+        
+        if self.boardViewModel.doodleModel.previousZoomScale != canvasView.zoomScale {
+            canvasView.zoomScale = self.boardViewModel.doodleModel.previousZoomScale
         }
         
-        if let scrollToRect = boardViewModel.scrollToRect {
-
-            let targetRect = CGRect(origin: scrollToRect.origin, size: CGSize(width: scrollToRect.width * zoomScale, height: scrollToRect.height * zoomScale))
-            canvasView.scrollRectToVisible(targetRect, animated: false)
-            DispatchQueue.main.async(execute: {
-                self.boardViewModel.scrollToRect = nil
-            })
-        }
-
         updateToolPicker(canvasView)
 
         if drawingModel.drawing != canvasView.drawing {

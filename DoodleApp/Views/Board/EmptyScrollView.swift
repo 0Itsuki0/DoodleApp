@@ -31,8 +31,8 @@ struct EmptyScrollView: UIViewRepresentable {
         scrollView.contentOffset = boardViewModel.doodleModel.previousOffset
         
         /// for zooming
-        scrollView.minimumZoomScale = Constants.minZoom
-        scrollView.maximumZoomScale = Constants.maxZoom
+        scrollView.minimumZoomScale = Constants.minScale
+        scrollView.maximumZoomScale = Constants.maxScale
         scrollView.zoomScale = boardViewModel.doodleModel.previousZoomScale
         
         scrollView.isUserInteractionEnabled = isScrollingEnabled
@@ -44,24 +44,12 @@ struct EmptyScrollView: UIViewRepresentable {
     func updateUIView(_ scrollView: UIScrollView, context: Context) {
         scrollView.isUserInteractionEnabled = isScrollingEnabled
 
-        let zoomScale = boardViewModel.doodleModel.previousZoomScale
-        
-        if let scrollToRect = boardViewModel.scrollToRect {
-            if zoomScale != scrollView.zoomScale {
-                scrollView.zoomScale = zoomScale
-            }
-            let targetRect = CGRect(origin: scrollToRect.origin, size: CGSize(width: scrollToRect.width * zoomScale, height: scrollToRect.height * zoomScale))
-            scrollView.scrollRectToVisible(targetRect, animated: false)
-            DispatchQueue.main.async(execute: {
-                boardViewModel.scrollToRect = nil
-            })
-        }
-
         if boardViewModel.doodleModel.previousOffset != scrollView.contentOffset {
             scrollView.contentOffset = boardViewModel.doodleModel.previousOffset
         }
-        if zoomScale != scrollView.zoomScale {
-            scrollView.zoomScale = zoomScale
+        
+        if boardViewModel.doodleModel.previousZoomScale != scrollView.zoomScale {
+            scrollView.zoomScale = boardViewModel.doodleModel.previousZoomScale
         }
 
     }

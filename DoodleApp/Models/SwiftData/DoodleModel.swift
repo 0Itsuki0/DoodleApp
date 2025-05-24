@@ -147,13 +147,6 @@ extension DoodleModel {
         return bounds ?? .zero
     }
     
-    var zoomThatFits: CGFloat {
-        let heightScale = self.bounds.width / UIScreen.main.bounds.width
-        let widthScale = self.bounds.height / UIScreen.main.bounds.height
-
-        return min(max(min(widthScale, heightScale) * 0.8, Constants.minZoom), Constants.maxZoom)
-    }
-
 }
 
 
@@ -297,6 +290,8 @@ extension DoodleModel {
 
         return DoodleModel(name: "Test", lastModified: Date(), isFavorite: true, showBackgroundGrid: true, previousZoomScale: 0.75, imageData: nil, previousOffset: .zero, drawings: [drawingModel], nonDrawings: [imageModel, linkModel], objectOrder: [drawingModel.id, imageModel.id, linkModel.id])
     }
+    
+
 
 }
 

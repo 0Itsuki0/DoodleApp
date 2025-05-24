@@ -50,9 +50,7 @@ class BoardViewModel {
     
     private var canUndoOther: Bool = false
     private var canRedoOther: Bool = false
-    
-    var scrollToRect: CGRect? = nil
-    
+        
     var showRenameAlert: Bool = false
     var showLinkEntryAlert: Bool = false
 

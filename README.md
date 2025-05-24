@@ -27,6 +27,8 @@ Within each doodle:
 - Share, duplicate, rename, favorite/unfavorite the doodle
 
 
+
+
 ## Demo
 
 ### Doodles Grid Overview
