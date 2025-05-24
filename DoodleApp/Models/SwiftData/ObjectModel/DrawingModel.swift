@@ -62,3 +62,10 @@ class DrawingModel {
     
 }
 
+
+extension DrawingModel {
+    var duplicate: DrawingModel {
+        let new = DrawingModel(drawing: self.drawing)
+        return new
+    }
+}

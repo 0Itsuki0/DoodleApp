@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct LinkObjectView: View {
-    @Environment(BoardViewModel.self) private var boardViewModel: BoardViewModel
 
     let linkObject: LinkObject
     
@@ -63,7 +62,7 @@ struct LinkObjectView: View {
 private let linkObject = LinkObject(link: "https://www.google.com", image: nil, title: nil)
 private let linkModel = NonDrawingModel(object: .link(linkObject), position: .init(x: 250, y: 250), size: .init(width: 200, height: 200), angleDegree: 20)
 
-private let model = DoodleModel.init(name: "d", lastModified: Date(), isFavorite: true, showBackgroundGrid: true, previousZoomScale: 1.0, previousOffset: .zero, drawings: [], nonDrawings: [linkModel], objectOrder: [linkModel.id])
+private let model = DoodleModel.init(name: "d", lastModified: Date(), isFavorite: true, showBackgroundGrid: true, previousZoomScale: 1.0, imageData: nil, previousOffset: .zero, drawings: [], nonDrawings: [linkModel], objectOrder: [linkModel.id])
 
 #Preview {
     

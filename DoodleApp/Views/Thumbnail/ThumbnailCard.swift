@@ -18,27 +18,36 @@ struct ThumbnailCard: View {
     
     @State private var nameEntry: String = ""
     @State private var showRenameAlert: Bool = false
+    
+    @State private var thumbnailImage: UIImage? = nil
 
     var body: some View {
-//        let image = Image(uiImage: drawingModel.drawing.image(from: drawingModel.drawing.bounds, scale: 1.0))
-        // todo
-        let image = Image(systemName: "heart")
+        let defaultImage = Image(systemName: "pencil.and.outline")
         let name: String = doodleModel.name
         let lastModified: Date = doodleModel.lastModified
 
         VStack(spacing: 0) {
             ZStack {
-                if doodleModel.drawings.isEmpty {
-                    Text("No doodles yet!")
+                if doodleModel.allObjects.isEmpty {
+                    Text("Nothing added!")
                         .font(.headline)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                 } else {
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    if let thumbnailImage {
+                        Image(uiImage: thumbnailImage)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        defaultImage
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.all, 24)
+
+                    }
                 }
             }
             .overlay(alignment: .bottomLeading, content: {
@@ -81,6 +90,10 @@ struct ThumbnailCard: View {
             .background(.gray.opacity(0.2))
 
         }
+        .onAppear {
+            // to avoid generating new one while editing the doodleModel
+            self.thumbnailImage = doodleModel.getThumbnailImage()
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .background(
@@ -105,7 +118,8 @@ struct ThumbnailCard: View {
                 modelContext.insert(doodleModel.duplicate)
             })
             
-            ShareLink(item: image, preview: SharePreview(name, image: image))
+            let transferable = ImageTransferable(generateImage: doodleModel.getThumbnailImage)
+            ShareLink(item: transferable, preview: SharePreview(name, image: transferable))
 
             MenuButton("Delete", "trash", {
                 modelContext.delete(doodleModel)

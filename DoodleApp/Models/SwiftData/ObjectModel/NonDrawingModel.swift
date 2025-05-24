@@ -65,4 +65,9 @@ class NonDrawingModel {
 }
 
 
-
+extension NonDrawingModel {
+    var duplicate: NonDrawingModel {
+        let new = NonDrawingModel(object: self.object, position: self.position, size: self.size, angleDegree: self.angleDegree)
+        return new
+    }
+}

@@ -52,7 +52,6 @@ struct SelectedObjectControls: View {
                     }
                 }
                 
-                
                 Rectangle()
                     .frame(width: 2, height: 36)
                     .foregroundStyle(.gray.opacity(0.2))
@@ -67,6 +66,29 @@ struct SelectedObjectControls: View {
                     self.boardViewModel.removeObject(doodleObject)
                     
                 }, foregroundColor: .red)
+                
+
+                Menu(content: {
+                    MenuButton("Bring Forward", "square.2.layers.3d.top.filled", {
+                        boardViewModel.moveObjectForward(doodleObject)
+                    })
+                    MenuButton("Bring To Front", "square.3.layers.3d.top.filled", {
+                        boardViewModel.moveObjectToFront(doodleObject)
+                    })
+                    MenuButton("Send Backward", "square.2.layers.3d.bottom.filled", {
+                        boardViewModel.moveObjectBackward(doodleObject)
+                    })
+                    MenuButton("Send To Back", "square.3.layers.3d.bottom.filled", {
+                        boardViewModel.moveObjectToBack(doodleObject)
+                    })
+
+                }, label: {
+                    ToolBarImage(systemName: "ellipsis.circle")
+                        .foregroundStyle(.black.opacity(0.8))
+
+                })
+                .menuOrder(.fixed)
+
 
             }
             .padding(.horizontal, 32)

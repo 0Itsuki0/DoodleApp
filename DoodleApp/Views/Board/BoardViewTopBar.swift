@@ -13,20 +13,9 @@ import PencilKit
 struct BoardViewTopBar: ToolbarContent {
     @Environment(BoardViewModel.self) private var boardViewModel: BoardViewModel
 
-//    let doodleModel: DoodleModel
-//    
-//    @Binding var canUndo: Bool
-//    @Binding var canRedo: Bool
-//    @Binding var selectedObject: BoardView.Selection?
-//    @Binding var showRenameAlert: Bool
-
     var isCompact: Bool
-
     
     @Environment(\.dismiss) private var dismiss
-//    @Environment(\.undoManager) private var undoManager
-
-//    @AppStorage("drawingPolicy") private var pencilOnly: Bool = true
 
     
     var body: some ToolbarContent {
@@ -36,6 +25,7 @@ struct BoardViewTopBar: ToolbarContent {
         ToolbarItem(placement: .topBarLeading, content: {
             HStack(spacing: 8) {
                 Button(action: {
+                    doodleModel.removeEmptyDrawings()
                     dismiss()
                 }, label: {
                     HStack {
@@ -73,30 +63,15 @@ struct BoardViewTopBar: ToolbarContent {
         })
 
         ToolbarItem(placement: .topBarTrailing, content: {
-//                    let image = Image(uiImage: doodleModel.drawing.image(from: doodleModel.drawing.bounds, scale: 1.0))
 
             HStack(spacing: 8) {
-
-//                        ShareLink(item: image, preview: SharePreview(doodleModel.name, image: image), label: {
-//                            ToolBarImage(systemName: "square.and.arrow.up")
-//                        })
-//                        .simultaneousGesture(TapGesture()
-//                            .onEnded({
-//                                showTools = false
-//                            }))
 
                 
                 if self.boardViewModel.selectedObject != nil {
                     Button(action: {
-                        // remove drawing if it is empty
-                        if let selectedObject = boardViewModel.selectedObject, selectedObject.enableEditing, let drawingModel = self.boardViewModel.doodleModel.drawings.first(where: {$0.id == selectedObject.id}) {
-                            if drawingModel.drawing.strokes.isEmpty {
-                                // not allow undoing
-                                self.boardViewModel.doodleModel.removeObject(drawingModel.id)
-                            }
-                        }
-
                         self.boardViewModel.selectedObject = nil
+                        // remove drawing if it is empty
+                        doodleModel.removeEmptyDrawings()
 
                     }, label: {
                         Text("Done")
@@ -104,6 +79,8 @@ struct BoardViewTopBar: ToolbarContent {
                             .contentShape(Rectangle())
                     })
                 }
+                
+                
                 
                 Menu(content: {
                     Section {
@@ -114,6 +91,24 @@ struct BoardViewTopBar: ToolbarContent {
                         MenuButton(doodleModel.isFavorite ? "Unfavorite" :"Favorite", doodleModel.isFavorite ? "heart.slash" : "heart", {
                             doodleModel.isFavorite.toggle()
                         })
+
+                    }
+                    
+                    Section {
+                        
+                        let transferable = ImageTransferable(generateImage: doodleModel.getThumbnailImage)
+
+                        ShareLink(item: transferable, preview: SharePreview(doodleModel.name, image: transferable), label: {
+                            HStack {
+                                Text("Share")
+                                Spacer()
+                                ToolBarImage(systemName: "square.and.arrow.up")
+                            }
+                        })
+                        .onLongPressGesture(minimumDuration: 0.01) {
+                            print("sharelink pressed")
+                        }
+
 
                     }
                     
@@ -143,6 +138,9 @@ struct BoardViewTopBar: ToolbarContent {
                 })
                     
             }
+            .onLongPressGesture(minimumDuration: 0) {
+                boardViewModel.selectedObject?.enableEditing = false
+            }
 
         })
 
@@ -151,21 +149,16 @@ struct BoardViewTopBar: ToolbarContent {
 }
 
 
-//#Preview {
-//    NavigationStack {
-//        VStack {
-//            Text("test")
-//        }
-//        .toolbar(content: {
-//            BoardViewTopBar(
-//                doodleModel: DoodleModel.testModel,
-//                canUndo: .constant(true),
-//                canRedo: .constant(true),
-//                selectedObject: .constant(nil),
-//                showRenameAlert: .constant(false),
-//                isCompact: true
-//            )
-//        })
-//    }
-//
-//}
+#Preview {
+    NavigationStack {
+        VStack {
+            Text("test")
+        }
+        .toolbar(content: {
+            BoardViewTopBar(isCompact: true)
+        })
+        .environment(BoardViewModel(doodleModel: DoodleModel.testModel))
+
+    }
+
+}

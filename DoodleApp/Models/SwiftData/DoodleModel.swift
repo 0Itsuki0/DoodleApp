@@ -19,8 +19,10 @@ class DoodleModel {
     var isFavorite: Bool
 
     var showBackgroundGrid: Bool
-    var previousZoomScale: CGFloat 
+    var previousZoomScale: CGFloat
     
+    var imageData: Data?
+
     private var previousContentOffsetX: CGFloat
     private var previousContentOffsetY: CGFloat
     
@@ -40,17 +42,23 @@ class DoodleModel {
     private var objectOrder: [_UUID]
 
     
-    init(name: String, lastModified: Date, isFavorite: Bool, showBackgroundGrid: Bool, previousZoomScale: CGFloat, previousOffset: CGPoint, drawings: [DrawingModel], nonDrawings: [NonDrawingModel], objectOrder: [UUID]) {
+    init(name: String, lastModified: Date, isFavorite: Bool, showBackgroundGrid: Bool, previousZoomScale: CGFloat, imageData: Data?, previousOffset: CGPoint, drawings: [DrawingModel], nonDrawings: [NonDrawingModel], objectOrder: [UUID]) {
         self.name = name
         self.lastModified = lastModified
         self.isFavorite = isFavorite
+        
         self.showBackgroundGrid = showBackgroundGrid
         self.previousZoomScale = previousZoomScale
+        
+        self.imageData = imageData
+        
         self.previousContentOffsetX = previousOffset.x
         self.previousContentOffsetY = previousOffset.y
         self.drawings = drawings
         self.nonDrawings = nonDrawings
         self.objectOrder = objectOrder.map(\._uuid)
+        // to clean up
+        self.removeEmptyDrawings()
     }
     
     
@@ -68,12 +76,53 @@ class DoodleModel {
     }
 }
 
+private struct _UUID: Codable, Equatable, Hashable, Identifiable {
+    var id: UUID
+}
+
+private extension _UUID {
+    var uuid: UUID { self.id }
+}
+
+private extension UUID {
+    var _uuid: _UUID { .init(id: self) }
+}
+
+
 
 // MARK: calculated properties
 extension DoodleModel {
     
     var duplicate: DoodleModel {
-        let new = DoodleModel(name: self.name + " copy", lastModified: Date(), isFavorite: self.isFavorite, showBackgroundGrid: true, previousZoomScale: self.previousZoomScale, previousOffset: .init(x: self.previousContentOffsetX, y: self.previousContentOffsetY), drawings: self.drawings, nonDrawings: self.nonDrawings, objectOrder: self.objectOrder.map(\.id))
+        var duplicatedDrawing: [DrawingModel] = []
+        var duplicatedNonDrawing: [NonDrawingModel] = []
+        var objectOrder: [UUID] = []
+        for object in self.allObjects {
+            switch object {
+            case .nonDrawing(let model):
+                let duplicate = model.duplicate
+                duplicatedNonDrawing.append(duplicate)
+                objectOrder.append(duplicate.id)
+            case .drawing(let model):
+                let duplicate = model.duplicate
+                duplicatedDrawing.append(duplicate)
+                objectOrder.append(duplicate.id)
+            }
+        }
+
+        let new = DoodleModel(
+            name: self.name + " copy",
+            lastModified: Date(),
+            isFavorite: self.isFavorite,
+            showBackgroundGrid: true,
+            previousZoomScale: self.previousZoomScale,
+            imageData: self.imageData,
+            previousOffset: .init(x: self.previousContentOffsetX, y: self.previousContentOffsetY),
+            drawings: duplicatedDrawing,
+            nonDrawings: duplicatedNonDrawing,
+            objectOrder: objectOrder
+        )
+        
         return new
     }
     
@@ -84,23 +133,108 @@ extension DoodleModel {
         let all: [DoodleObject] = drawing + images
         return all.sorted { self.orderForId($0.id) < self.orderForId($1.id) }
     }
+    
+    var bounds: CGRect {
+        var bounds: CGRect? = nil
+        for doodleObject in self.allObjects {
+            let objectRect = CGRect(origin: CGPoint(x: doodleObject.position.x - doodleObject.size.width/2, y: doodleObject.position.y - doodleObject.size.height/2), size: doodleObject.size)
+            if bounds == nil {
+                bounds = objectRect
+            } else {
+                bounds = bounds?.union(objectRect)
+            }
+        }
+        return bounds ?? .zero
+    }
+    
+    var zoomThatFits: CGFloat {
+        let heightScale = self.bounds.width / UIScreen.main.bounds.width
+        let widthScale = self.bounds.height / UIScreen.main.bounds.height
+
+        return min(max(min(widthScale, heightScale) * 0.8, Constants.minZoom), Constants.maxZoom)
+    }
 
 }
 
 
 extension DoodleModel {
     
+    @MainActor
+    func getThumbnailImage() -> UIImage? {
+        if let imageData = self.imageData {
+            print("previous data exists")
+            return UIImage(data: imageData)
+        }
+        
+        print("generating new image")
+        
+        var view: some View {
+            ZStack {
+                Group {
+                    ForEach(self.allObjects) { doodleObject in
+                        Group {
+                            switch doodleObject {
+                            case .drawing(let drawingModel):
+                                DrawingObjectView(
+                                    drawingModel: drawingModel
+                                )
+                            case .nonDrawing(let nonDrawingModel):
+                                Group {
+                                    switch nonDrawingModel.object {
+                                    case .image(let imageObject):
+                                        ImageObjectView(imageObject: imageObject)
+                                        
+                                    case .link(let linkObject):
+                                        LinkObjectView(linkObject: linkObject)
+                                        
+                                    }
+                                }
+                            }
+                        }
+                        .frame(width: doodleObject.size.width, height: doodleObject.size.height)
+                        .padding(.horizontal, doodleObject.size.width/2)
+                        .padding(.vertical, doodleObject.size.height/2)
+                        .rotationEffect(.degrees(doodleObject.angleDegree))
+                        .position(doodleObject.position)
+
+                    }
+                }
+                .frame(width: self.bounds.width, height: self.bounds.height)
+                .offset(x: -self.bounds.origin.x, y: -self.bounds.origin.y)
+
+            }
+            
+        }
+        
+        let renderer = ImageRenderer(content: view)
+        renderer.scale = UIScreen.main.scale
+        
+        let uiImage = renderer.uiImage
+        if let compressed = uiImage?.pngData()?.compressedImage(to: .init(width: UIScreen.main.bounds.width/4, height: UIScreen.main.bounds.height/4)) {
+            self.imageData = compressed.pngData()
+        } else {
+            self.imageData = uiImage?.pngData()
+        }
+        
+        return uiImage
+    }
+    
+    func removeEmptyDrawings() {
+        let emptyIds = self.drawings.filter({ $0.drawing.strokes.isEmpty}).map { $0.id }
+        for id in emptyIds {
+            self.removeObject(id)
+        }
+    }
+    
+    
     func orderForObject(_ object: DoodleObject) -> Int {
         return self.orderForId(object.id)
     }
     
     func changeObjectOrder(from: Int, to: Int) {
-        print("change object order from \(from) to \(to)")
         guard from != to else { return }
-        print("order before move: \(self.objectOrder)")
         guard (0...self.objectOrder.count).contains(to) else { return }
         self.objectOrder.move(fromOffsets: .init(integer: from), toOffset: to > from ? to + 1 : to)
-        print("order after move: \(self.objectOrder)")
 
     }
     
@@ -137,6 +271,7 @@ extension DoodleModel {
 }
 
 
+// MARK: for testing
 extension DoodleModel {
     static var testModel: DoodleModel {
         let firstPoint: PKStrokePoint = .init(
@@ -160,20 +295,8 @@ extension DoodleModel {
         let linkObject = LinkObject(link: "https://www.google.com", image: nil, title: nil)
         let linkModel = NonDrawingModel(object: .link(linkObject), position: .init(x: 250, y: 250), size: .init(width: 200, height: 200), angleDegree: 20)
 
-        return DoodleModel(name: "Test", lastModified: Date(), isFavorite: true, showBackgroundGrid: true, previousZoomScale: 0.75, previousOffset: .zero, drawings: [drawingModel], nonDrawings: [imageModel, linkModel], objectOrder: [drawingModel.id, imageModel.id, linkModel.id])
+        return DoodleModel(name: "Test", lastModified: Date(), isFavorite: true, showBackgroundGrid: true, previousZoomScale: 0.75, imageData: nil, previousOffset: .zero, drawings: [drawingModel], nonDrawings: [imageModel, linkModel], objectOrder: [drawingModel.id, imageModel.id, linkModel.id])
     }
 
 }
 
-
-private struct _UUID: Codable, Equatable, Hashable, Identifiable {
-    var id: UUID
-}
-
-private extension _UUID {
-    var uuid: UUID { self.id }
-}
-
-private extension UUID {
-    var _uuid: _UUID { .init(id: self) }
-}

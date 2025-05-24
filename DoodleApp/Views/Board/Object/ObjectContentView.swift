@@ -14,10 +14,11 @@ struct ObjectContentView: View {
 
     var body: some View {
 
+        let doodleModel = boardViewModel.doodleModel
+        
         ZStack {
-
             Group {
-                ForEach(self.boardViewModel.doodleModel.allObjects) { doodleObject in
+                ForEach(doodleModel.allObjects) { doodleObject in
                     
                     Group {
                         switch doodleObject {
@@ -42,24 +43,19 @@ struct ObjectContentView: View {
                     .interactable(doodleObject: doodleObject)
                 }
             }
-            .scaleEffect(self.boardViewModel.doodleModel.previousZoomScale, anchor: .topLeading)
-            .offset(x: -self.boardViewModel.doodleModel.previousOffset.x, y: -self.boardViewModel.doodleModel.previousOffset.y)
+            .scaleEffect(doodleModel.previousZoomScale, anchor: .topLeading)
+            .offset(x: -doodleModel.previousOffset.x, y: -doodleModel.previousOffset.y)
 
-            
         }
     }
 }
 
 
 
-#Preview {
-    NavigationStack {
-        ObjectContentView()
-            .modelContainer(for: [DoodleModel.self], inMemory: true)
-            .environment(BoardViewModel(doodleModel: DoodleModel.testModel))
-
-            
-    }
-    
-    
-}
+//#Preview {
+//    NavigationStack {
+//        ObjectContentView()
+//            .modelContainer(for: [DoodleModel.self], inMemory: true)
+//            .environment(BoardViewModel(doodleModel: DoodleModel.testModel))
+//    }
+//}

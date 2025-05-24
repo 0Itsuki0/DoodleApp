@@ -11,22 +11,13 @@ struct AddImageMenu: View {
     @Environment(BoardViewModel.self) private var boardViewModel: BoardViewModel
 
     var body: some View {
-        Button(action: {
+
+        MenuButton("Photos", "photo.on.rectangle", {
             boardViewModel.showPhotosPicker = true
-        }, label: {
-            HStack {
-                Text("Photos")
-                Image(systemName: "photo.on.rectangle")
-            }
         })
-        
-        Button(action: {
+
+        MenuButton("Insert from...", "folder", {
             boardViewModel.showImageImporter = true
-        }, label: {
-            HStack {
-                Text("Insert from...")
-                Image(systemName: "folder")
-            }
         })
 
     }

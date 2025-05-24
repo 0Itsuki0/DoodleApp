@@ -238,9 +238,10 @@ extension BoardViewModel {
         self.updateOrderWithUndo(object: object, from: currentOrder, to: currentOrder + 1)
     }
     
-    // todo: finish up
-    func moveObjectToFront() {
-        
+    func moveObjectToFront(_ object: DoodleObject) {
+        let currentOrder = self.doodleModel.orderForObject(object)
+        guard currentOrder < self.doodleModel.allObjects.count - 1 else { return }
+        self.updateOrderWithUndo(object: object, from: currentOrder, to: self.doodleModel.allObjects.count - 1 )
     }
     
     func moveObjectBackward(_ object: DoodleObject) {
@@ -249,8 +250,10 @@ extension BoardViewModel {
         self.updateOrderWithUndo(object: object, from: currentOrder, to: currentOrder - 1)
     }
     
-    func moveObjectToBack() {
-        
+    func moveObjectToBack(_ object: DoodleObject) {
+        let currentOrder = self.doodleModel.orderForObject(object)
+        guard currentOrder > 0 else { return }
+        self.updateOrderWithUndo(object: object, from: currentOrder, to: 0)
     }
     
     private func updateOrderWithUndo(object: DoodleObject, from: Int, to: Int) {
@@ -337,12 +340,6 @@ extension BoardViewModel {
             self.addNonDrawingWithUndo(nonDrawingModel, index: nil)
 
         }
-
-//        let imageRatio: CGFloat = uiImage.size.height / uiImage.size.width
-//        let imageSize = CGSize(width: Constants.initialImageWidth, height: imageRatio * Constants.initialImageWidth)
-//        let nonDrawingModel = NonDrawingModel(object: .image(ImageObject(image: uiImage)), position: self.locationForNewObject(at: index), size: imageSize, angleDegree: 0.0)
-//        
-//        self.addNonDrawingWithUndo(nonDrawingModel, index: nil)
     }
 }
 
@@ -538,6 +535,7 @@ extension BoardViewModel {
     
     private func updateLastModified() {
         self.doodleModel.lastModified = Date()
+        self.doodleModel.imageData = nil
     }
     
     private func locationForNewObject(at index: Int = 0) -> CGPoint {
@@ -554,12 +552,10 @@ extension BoardViewModel {
             handler(target)
         }
         undoManager?.endUndoGrouping()
-
         
     }
 
 }
-
 
 
 
@@ -570,11 +566,14 @@ private struct TestView: View {
 
         ZStack {
             ObjectContentView()
+                .overlay(content: {
+                    Text("\(boardViewModel.doodleModel.allObjects.map(\.id))")
+                })
         }
         .overlay(alignment: .topTrailing, content: {
             VStack {
                 Button(action: {
-                    self.boardViewModel.moveObjectForward(boardViewModel.doodleModel.allObjects[1])
+                    self.boardViewModel.moveObjectToFront(boardViewModel.doodleModel.allObjects[1])
                 }, label: {
                     Text("forward")
                 })

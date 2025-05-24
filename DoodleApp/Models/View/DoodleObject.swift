@@ -75,7 +75,7 @@ extension DoodleObject: Identifiable {
     var angleDegree: CGFloat {
         get {
             switch self {
-            case .drawing(let model):
+            case .drawing(_):
                 return 0.0
             case .nonDrawing(let model):
                 return model.angleDegree
@@ -103,7 +103,7 @@ extension DoodleObject: Identifiable {
     
     func setAngle(_ angle: CGFloat) {
         switch self {
-        case .drawing(let model):
+        case .drawing(_):
             break
         case .nonDrawing(let model):
             model.angleDegree = angle

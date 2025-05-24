@@ -19,8 +19,11 @@ struct ImageObject: Codable {
     }
     
     init(image: UIImage) {
-//        self.imageData = image.pngData()
-        self.imageData = image.jpegData(compressionQuality: 0.8)
+        if let compressed = image.pngData()?.compressedImage(to: .init(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height/2)) {
+            self.imageData = compressed.pngData()
+        } else {
+            self.imageData = image.pngData()
+        }
     }
     
     init(imageData: Data) {

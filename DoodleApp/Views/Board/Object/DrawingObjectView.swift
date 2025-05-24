@@ -10,15 +10,15 @@ import PencilKit
 
 
 struct DrawingObjectView: View {
-    @Environment(BoardViewModel.self) private var boardViewModel: BoardViewModel
-
     let drawingModel: DrawingModel
     
+    @Environment(\.displayScale) private var displayScale
+
     var body: some View {
         
         let bounds = drawingModel.drawing.bounds
-        if !bounds.isInfinite && !bounds.isNull && !bounds.isEmpty {
-            let image = drawingModel.drawing.image(from: bounds, scale: self.boardViewModel.doodleModel.previousZoomScale)
+        if bounds.isBounded {
+            let image = drawingModel.drawing.image(from: bounds, scale: displayScale)
             Image(uiImage: image)
                 .renderingMode(.original)
                 .resizable()

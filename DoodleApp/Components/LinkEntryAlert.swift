@@ -30,6 +30,8 @@ private struct LinkEntryAlert: ViewModifier {
     var currentLink: String?
 
     @State private var linkEntry: String = ""
+    @State private var selection: TextSelection? = nil
+
     
     func body(content: Content) -> some View {
         let title = currentLink == nil ? "Add Link" : "Edit Link"
@@ -39,9 +41,19 @@ private struct LinkEntryAlert: ViewModifier {
         
         content
             .alert(title, isPresented: $showLinkEntryAlert) {
-                TextField(placeHolder, text: $linkEntry)
+                TextField(placeHolder, text: $linkEntry, selection: $selection)
                     .textInputAutocapitalization(.never)
                     .textContentType(.URL)
+                    .onChange(of: showLinkEntryAlert, initial: true, {
+                        guard showLinkEntryAlert else { return }
+                        guard let range = linkEntry.firstRange(of: linkEntry) else {
+                            return
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: {
+                            selection = .init(range: range)
+                        })
+                    })
+                
 
                 Button(action: {
                     showLinkEntryAlert = false
