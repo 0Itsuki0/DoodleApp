@@ -38,9 +38,17 @@ struct SelectedObjectControls: View {
 
                             })
                             
-                        case .link(_):
-                            makeButton(systemName: "safari", action: {
+                        case .link(let model):
+                            makeButton(systemName: "link", action: {
                                 boardViewModel.showLinkEntryAlert = true
+                            })
+                            
+                            makeButton(systemName: "eye", action: {
+                                if let url = URL(string: model.link), UIApplication.shared.canOpenURL(url) {
+                                    UIApplication.shared.open(url)
+                                } else {
+                                    boardViewModel.error = "Error opening link: Invalid URL"
+                                }
                             })
                             
                             makeButton(systemName: "arrow.clockwise", action: {

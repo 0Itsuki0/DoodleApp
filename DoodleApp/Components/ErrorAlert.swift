@@ -27,7 +27,7 @@ private struct ErrorAlert: ViewModifier {
     var error: String?
     
     func body(content: Content) -> some View {
-        let title = "Something Went Wrong!"
+        let title = "Oops!"
         let message = error
         
         content
