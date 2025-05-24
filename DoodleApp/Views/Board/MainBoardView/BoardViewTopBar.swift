@@ -105,10 +105,6 @@ struct BoardViewTopBar: ToolbarContent {
                                 ToolBarImage(systemName: "square.and.arrow.up")
                             }
                         })
-                        .onLongPressGesture(minimumDuration: 0.01) {
-                            print("sharelink pressed")
-                        }
-
 
                     }
                     

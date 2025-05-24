@@ -56,6 +56,10 @@ struct BoardView: View {
         .navigationTitle(self.boardViewModel.doodleModel.name)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
+        .errorAlert(
+            showErrorAlert: $boardViewModel.showErrorAlert,
+            error: self.boardViewModel.error
+        )
         .renameAlert(
             doodleModel: self.boardViewModel.doodleModel,
             showRenameAlert: $boardViewModel.showRenameAlert

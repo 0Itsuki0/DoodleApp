@@ -155,12 +155,9 @@ extension DoodleModel {
     @MainActor
     func getThumbnailImage() -> UIImage? {
         if let imageData = self.imageData {
-            print("previous data exists")
             return UIImage(data: imageData)
         }
-        
-        print("generating new image")
-        
+                
         var view: some View {
             ZStack {
                 Group {

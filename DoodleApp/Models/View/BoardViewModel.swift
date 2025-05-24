@@ -26,6 +26,15 @@ class BoardViewModel {
         didSet {
             if let error = self.error {
                 print(error)
+                showErrorAlert = true
+            }
+        }
+    }
+    
+    var showErrorAlert: Bool = false {
+        didSet {
+            if !showErrorAlert {
+                self.error = nil
             }
         }
     }
