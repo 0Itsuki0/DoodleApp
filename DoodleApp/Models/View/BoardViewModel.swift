@@ -272,7 +272,7 @@ extension BoardViewModel {
 extension BoardViewModel {
     func addNewDrawing() {
         let drawing = DrawingModel(drawing: PKDrawing())
-        self.addDrawingWithUndo(drawing)
+        self.addDrawingWithUndo(drawing, enableEditing: true)
     }
     
     func updateDrawing(drawingModel: DrawingModel, canvasView: PKCanvasView) {
@@ -443,7 +443,7 @@ extension BoardViewModel {
         case .drawing(let drawingModel):
             let duplicate = DrawingModel(drawing: drawingModel.drawing)
             duplicate.position = newPosition
-            self.addDrawingWithUndo(duplicate)
+            self.addDrawingWithUndo(duplicate, enableEditing: true)
             
         case .nonDrawing(let nonDrawingModel):
             let duplicate = NonDrawingModel(object: nonDrawingModel.object, position: newPosition, size: nonDrawingModel.size, angleDegree: nonDrawingModel.angleDegree)
@@ -496,7 +496,7 @@ extension BoardViewModel {
     }
     
     
-    private func addDrawingWithUndo(_ model: DrawingModel, index: Int? = nil) {
+    private func addDrawingWithUndo(_ model: DrawingModel, index: Int? = nil, enableEditing: Bool) {
         self.registerUndo(withTarget: self) { target in
             target.removeDrawingWithUndo(model)
         }
@@ -504,14 +504,14 @@ extension BoardViewModel {
         self.doodleModel.addDrawing(model, index: index)
         self.updateLastModified()
         self.canUndoOther = true
-        self.selectedObject = .init(objectId: model.id, enableEditing: true)
+        self.selectedObject = .init(objectId: model.id, enableEditing: enableEditing)
         
     }
 
     private func removeDrawingWithUndo(_ model: DrawingModel) {
         let index = self.doodleModel.drawings.firstIndex(of: model)
         self.registerUndo(withTarget: self) { target in
-            target.addDrawingWithUndo(model, index: index)
+            target.addDrawingWithUndo(model, index: index, enableEditing: false)
         }
         
         self.doodleModel.removeObject(model.id)

@@ -13,13 +13,17 @@
 /* Begin PBXFileReference section */
 		983F22C32DC6E14400234C8A /* DoodleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DoodleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		983F22F02DC71A0200234C8A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		983F22F22DC71A5200234C8A /* demo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = demo.gif; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		983F22C52DC6E14400234C8A /* DoodleApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = DoodleApp;
+			sourceTree = "<group>";
+		};
+		98BCEF9F2DE17055009E05AF /* demo */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = demo;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -38,7 +42,7 @@
 		983F22BA2DC6E14400234C8A = {
 			isa = PBXGroup;
 			children = (
-				983F22F22DC71A5200234C8A /* demo.gif */,
+				98BCEF9F2DE17055009E05AF /* demo */,
 				983F22F02DC71A0200234C8A /* README.md */,
 				983F22C52DC6E14400234C8A /* DoodleApp */,
 				983F22C42DC6E14400234C8A /* Products */,
