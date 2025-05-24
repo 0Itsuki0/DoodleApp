@@ -21,7 +21,7 @@ Within each doodle:
 - Add multiple drawings, images, links
     - Toggle between Apple Pencil vs anyInput
     - Import image from Photos, Files
-    - Link with Preview
+    - Link with Preview & open link in browser
 - Resize and reposition the objects
 - Re-arrange the object order (send to front/back, move forward/backward)
 - Duplicate/delete objects
