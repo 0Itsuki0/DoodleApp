@@ -5,6 +5,9 @@ A doodle app (Freeform Copy Cat) implemented with
 - PencilKit for drawing-related features
 - SwiftData for data persistent
 
+![](./demo/overview.gif)
+
+
 
 ## Features
 This app come with the following features.
